@@ -1,8 +1,10 @@
 {
   "name": "ss6-connect-handshake",
   "private": true,
+  "description": "Cloudflare-only SS6-Connect handshake. B12 off. Combined ROOT_OCEAN + GNAI TV.",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "check": "node --check src/worker.js"
   }
 }

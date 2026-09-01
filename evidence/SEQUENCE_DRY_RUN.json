@@ -1,0 +1,14 @@
+{
+  "run": "ss6-sequence-dry-run",
+  "mode": "controlled-remediation",
+  "production_mutation": false,
+  "b12": false,
+  "modules": [
+    {"module": "ingress", "status": "RECORDED", "summary": "Telemetry snapshot accepted as evidence only"},
+    {"module": "ledger", "status": "RECORDED", "summary": "Ledger checkpoint hash recorded; no keys stored"},
+    {"module": "island", "status": "RECORDED", "summary": "Island isolation simulation logged; no network cutover"},
+    {"module": "dashboard", "status": "RECORDED", "summary": "Admin probe specified; session tokens rejected by contract"}
+  ],
+  "pipeline": "detector to HMAC /hook to KV to dispatch to candidate PR to human approval",
+  "note": "Local record of the handshake contract. Live Worker deploy and signed POSTs happen only in the operator terminal."
+}

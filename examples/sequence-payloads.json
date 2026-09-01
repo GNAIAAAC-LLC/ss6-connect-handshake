@@ -1,0 +1,47 @@
+{
+  "note": "Unsigned example payloads. Sign locally with HANDSHAKE_HMAC. Do not put the secret in git.",
+  "events": [
+    {
+      "action": "ingest_evidence",
+      "module": "ingress",
+      "source": "sequence-pack",
+      "summary": "Module 1 telemetry snapshot (evidence only)",
+      "metrics": {
+        "ingress_rate": 1248,
+        "packet_loss": 0,
+        "active_connections": 42,
+        "cpu_load": 14.2,
+        "memory_usage": 32.8,
+        "latency_ms": 4.1
+      }
+    },
+    {
+      "action": "ingest_evidence",
+      "module": "ledger",
+      "source": "sequence-pack",
+      "summary": "Module 2 ledger checkpoint (hash only)",
+      "metrics": {
+        "blocks_verified": 1489203,
+        "integrity_status": "valid"
+      },
+      "sha": "8f4b2e9c1d3a7f6e8b0c4a2d1f3e5c7b9a8f6e4d2c1b0a9f8e7d6c5b4a3f2e1d"
+    },
+    {
+      "action": "ingest_evidence",
+      "module": "island",
+      "source": "sequence-pack",
+      "summary": "Module 3 island isolation simulation complete",
+      "metrics": {
+        "isolation_seconds": 30,
+        "merge_conflicts": 0,
+        "recovered": true
+      }
+    },
+    {
+      "action": "request_candidate",
+      "module": "dashboard",
+      "source": "sequence-pack",
+      "summary": "Module 4 admin gateway probe. No session token included. Open candidate PR only."
+    }
+  ]
+}
