@@ -4,6 +4,19 @@ on:
   repository_dispatch:
     types: [ss6-candidate-request]
   workflow_dispatch:
+    inputs:
+      evidence_id:
+        description: Manual evidence id
+        required: false
+        default: manual
+      module:
+        description: ingress | ledger | island | dashboard
+        required: false
+        default: ingress
+      summary:
+        description: Short summary
+        required: false
+        default: manual candidate
 
 permissions:
   contents: write
@@ -15,11 +28,61 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Record evidence issue
+
+      - name: Refuse to treat this job as production deploy
+        run: |
+          echo "controlled-remediation only"
+          echo "ref=${GITHUB_REF}"
+          echo "event=${GITHUB_EVENT_NAME}"
+          if [ "${GITHUB_REF}" = "refs/heads/main" ] && [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+            echo "This workflow is not a production push handler."
+          fi
+
+      - name: Open candidate branch + evidence file + PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVIDENCE: ${{ github.event.client_payload.evidence_id || inputs.evidence_id }}
+          MODULE: ${{ github.event.client_payload.module || inputs.module }}
+          SUMMARY: ${{ github.event.client_payload.summary || inputs.summary }}
         run: |
-          EVIDENCE="${{ github.event.client_payload.evidence_id }}"
-          SUMMARY="${{ github.event.client_payload.summary }}"
-          gh issue create --title "SS6 candidate request ${EVIDENCE:-manual}" --body "Controlled remediation. Evidence: ${EVIDENCE}. Summary: ${SUMMARY}."
+          set -euo pipefail
+          EVIDENCE="${EVIDENCE:-manual}"
+          MODULE="${MODULE:-ingress}"
+          SUMMARY="${SUMMARY:-controlled candidate}"
+          SAFE_ID=$(printf '%s' "$EVIDENCE" | tr -cd 'A-Za-z0-9._-' | cut -c1-64)
+          SAFE_MOD=$(printf '%s' "$MODULE" | tr -cd 'a-z' | cut -c1-24)
+          BRANCH="candidate/ss6-${SAFE_MOD}-${SAFE_ID}"
+          git checkout -b "$BRANCH"
+          mkdir -p evidence
+          cat > "evidence/${SAFE_ID}.json" <<EOF
+          {
+            "evidence_id": $(python3 -c 'import json,os; print(json.dumps(os.environ["EVIDENCE"]))'),
+            "module": $(python3 -c 'import json,os; print(json.dumps(os.environ["MODULE"]))'),
+            "summary": $(python3 -c 'import json,os; print(json.dumps(os.environ["SUMMARY"][:500]))'),
+            "mode": "controlled-remediation",
+            "production_autodeploy": false,
+            "recorded_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          }
+          EOF
+          git config user.name "ss6-handshake"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add evidence
+          git commit -m "chore(evidence): ${SAFE_MOD} ${SAFE_ID}"
+          git push -u origin "$BRANCH"
+          gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "SS6 candidate ${SAFE_MOD} ${SAFE_ID}" \
+            --body "Controlled remediation only. Do not merge to production until tests + human approval. Module: ${SAFE_MOD}. Evidence: ${SAFE_ID}."
+        continue-on-error: true
+
+      - name: Record evidence issue fallback
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVIDENCE: ${{ github.event.client_payload.evidence_id || inputs.evidence_id }}
+          SUMMARY: ${{ github.event.client_payload.summary || inputs.summary }}
+        run: |
+          gh issue create \
+            --title "SS6 candidate request ${EVIDENCE:-manual}" \
+            --body "Controlled remediation only. Evidence: ${EVIDENCE}. Summary: ${SUMMARY}. Do not merge to production until tests + human approval."
         continue-on-error: true
