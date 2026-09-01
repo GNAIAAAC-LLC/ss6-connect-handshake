@@ -1,0 +1,25 @@
+name: SS6 candidate request
+
+on:
+  repository_dispatch:
+    types: [ss6-candidate-request]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  open-candidate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record evidence issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EVIDENCE="${{ github.event.client_payload.evidence_id }}"
+          SUMMARY="${{ github.event.client_payload.summary }}"
+          gh issue create --title "SS6 candidate request ${EVIDENCE:-manual}" --body "Controlled remediation. Evidence: ${EVIDENCE}. Summary: ${SUMMARY}."
+        continue-on-error: true

@@ -1,0 +1,7 @@
+name = "ss6-connect-handshake"
+main = "src/worker.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+HUB_NAME = "SS6-Connect Global Business Hub"
+ALLOWED_ACTIONS = "ingest_evidence,request_candidate"
