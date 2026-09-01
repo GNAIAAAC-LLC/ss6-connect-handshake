@@ -1,20 +1,23 @@
 name = "ss6-connect-handshake"
 main = "src/worker.js"
 compatibility_date = "2026-09-01"
+workers_dev = true
 
-# Bind after you create the namespace in the Cloudflare dashboard:
-# wrangler kv:namespace create SS6_EVIDENCE
-# Then paste the id below. Do not put secrets in this file.
+# KV binding SS6_EVIDENCE
+# scripts/setup-kv.sh creates prod + preview namespaces and writes ids below.
+# Until then the Worker still deploys; /health reports kv_bound: false.
 
 # [[kv_namespaces]]
 # binding = "SS6_EVIDENCE"
-# id = "REPLACE_WITH_KV_NAMESPACE_ID"
+# id = "REPLACE_SS6_EVIDENCE_ID"
+# preview_id = "REPLACE_SS6_EVIDENCE_PREVIEW_ID"
 
 [vars]
 HUB_NAME = "SS6-Connect Global Business Hub"
 ALLOWED_ACTIONS = "ingest_evidence,request_candidate"
 GITHUB_REPO = "GNAIAAAC-LLC/ss6-connect-handshake"
+KV_BINDINGS = "SS6_EVIDENCE"
 
-# Secrets (wrangler secret put — never commit):
-# HANDSHAKE_HMAC
-# GITHUB_DISPATCH_TOKEN  (repo scope only, no admin)
+# Secrets:
+#   npx wrangler secret put HANDSHAKE_HMAC
+#   npx wrangler secret put GITHUB_DISPATCH_TOKEN

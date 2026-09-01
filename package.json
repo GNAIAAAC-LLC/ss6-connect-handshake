@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "check": "node --check src/worker.js"
+    "check": "node --check src/worker.js",
+    "kv:setup": "bash scripts/setup-kv.sh",
+    "kv:list": "wrangler kv namespace list"
   }
 }

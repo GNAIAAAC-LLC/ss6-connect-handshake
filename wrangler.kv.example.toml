@@ -1,0 +1,9 @@
+# Copy the kv_namespaces block into wrangler.toml after setup-kv.sh
+# or paste ids from:
+#   npx wrangler kv namespace create SS6_EVIDENCE
+#   npx wrangler kv namespace create SS6_EVIDENCE --preview
+
+[[kv_namespaces]]
+binding = "SS6_EVIDENCE"
+id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+preview_id = "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
